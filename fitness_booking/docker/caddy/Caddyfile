@@ -1,0 +1,54 @@
+{
+    email admin@example.com
+    
+    # use production let's encrypt server
+    # acme_ca https://acme-v02.api.letsencrypt.org/directory
+    
+    # use staging server for testing
+    acme_ca https://acme-staging-v02.api.letsencrypt.org/directory
+}
+
+localhost {
+    reverse_proxy web:8000 {
+        header_up Host {host}
+        header_up X-Real-IP {remote}
+        header_up X-Forwarded-For {remote}
+        header_up X-Forwarded-Proto {scheme}
+    }
+
+    handle /static/* {
+        root * /app/staticfiles
+        file_server {
+            precompressed br gzip
+        }
+        header Cache-Control "public, max-age=2592000"
+    }
+    
+    handle /media/* {
+        root * /app/media
+        file_server
+        header Cache-Control "public, max-age=2592000"
+    }
+
+    encode gzip
+    
+    log {
+        output file /var/log/caddy/access.log
+        format json
+    }
+    
+    header {
+        Strict-Transport-Security "max-age=31536000; includeSubDomains; preload"
+        X-Content-Type-Options "nosniff"
+        X-Frame-Options "DENY"
+        Referrer-Policy "strict-origin-when-cross-origin"
+        X-XSS-Protection "1; mode=block"
+    }
+    
+    timeouts {
+        read_body 10s
+        read_header 10s
+        write 30s
+        idle 5m
+    }
+}

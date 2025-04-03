@@ -1,0 +1,59 @@
+  web:
+    build:
+      context: .
+    restart: always
+    volumes:
+      - .:/app
+      - static_volume:/app/staticfiles
+      - media_volume:/app/media
+    ports:
+      - "8000:8000"
+    environment:
+      - DEBUG=True
+      - SECRET_KEY=dev_secret_key
+      - DB_NAME=fitness_booking
+      - DB_USER=postgres
+      - DB_PASSWORD=postgres
+      - DB_HOST=db
+      - DB_PORT=5432
+      - SENDGRID_API_KEY=development_sendgrid_key
+      - DEFAULT_FROM_EMAIL=noreply@fitnessclasses.com
+      - ALLOWED_HOSTS=localhost,127.0.0.1
+      - DJANGO_SUPERUSER_USERNAME=admin
+      - DJANGO_SUPERUSER_PASSWORD=adminpassword
+      - DJANGO_SUPERUSER_EMAIL=admin@example.com
+    depends_on:
+      - db
+    command: python manage.py runserver 0.0.0.0:8000
+    networks:
+      - fitness_network
+
+  pgadmin:
+    image: dpage/pgadmin4
+    restart: always
+    environment:
+      - PGADMIN_DEFAULT_EMAIL=admin@example.com
+      - PGADMIN_DEFAULT_PASSWORD=adminpassword
+    ports:
+      - "5050:80"
+    depends_on:
+      - db
+    networks:
+      - fitness_network
+
+  mailhog:
+    image: mailhog/mailhog
+    ports:
+      - "1025:1025" 
+      - "8025:8025" 
+    networks:
+      - fitness_network
+
+networks:
+  fitness_network:
+    driver: bridge
+
+volumes:
+  postgres_data:
+  static_volume:
+  media_volume:

@@ -1,0 +1,117 @@
+{% extends 'base.html' %}
+
+{% block title %}Booking Details - {{ block.super }}{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-8 offset-md-2">
+        <div class="card">
+            <div class="card-header bg-primary text-white">
+                <h4 class="mb-0">Booking Details</h4>
+            </div>
+            <div class="card-body">
+                <div class="row mb-4">
+                    <div class="col-md-4">
+                        {% if booking.class_schedule.fitness_class.image %}
+                        <img src="{{ booking.class_schedule.fitness_class.image }}" class="img-fluid rounded" alt="{{ booking.class_schedule.fitness_class.title }}">
+                        {% else %}
+                        <img src="https://via.placeholder.com/300x200?text=Fitness+Class" class="img-fluid rounded" alt="{{ booking.class_schedule.fitness_class.title }}">
+                        {% endif %}
+                    </div>
+                    <div class="col-md-8">
+                        <h5>{{ booking.class_schedule.fitness_class.title }}</h5>
+                        <p class="text-muted">
+                            <span class="badge bg-primary">{{ booking.class_schedule.fitness_class.category.name }}</span>
+                            <span class="badge bg-secondary">{{ booking.class_schedule.fitness_class.get_difficulty_level_display }}</span>
+                        </p>
+                        <p><strong>Instructor:</strong> {{ booking.class_schedule.fitness_class.instructor.name }}</p>
+                        <p><strong>Duration:</strong> {{ booking.class_schedule.fitness_class.duration_minutes }} minutes</p>
+                    </div>
+                </div>
+                
+                <div class="alert alert-{% if booking.status == 'confirmed' %}success{% elif booking.status == 'cancelled' %}danger{% elif booking.status == 'attended' %}info{% elif booking.status == 'no_show' %}warning{% endif %}">
+                    <h5 class="alert-heading">Booking Status: {{ booking.get_status_display }}</h5>
+                    {% if booking.status == 'cancelled' and booking.cancellation_reason %}
+                    <p>Cancellation Reason: {{ booking.cancellation_reason }}</p>
+                    <p>Cancelled on: {{ booking.cancellation_date|date:"M d, Y" }}</p>
+                    {% endif %}
+                </div>
+                
+                <h5 class="mt-4">Class Details</h5>
+                <hr>
+                
+                <div class="row mb-3">
+                    <div class="col-md-3">
+                        <strong>Date:</strong>
+                    </div>
+                    <div class="col-md-9">
+                        {{ booking.class_schedule.start_time|date:"l, F d, Y" }}
+                    </div>
+                </div>
+                
+                <div class="row mb-3">
+                    <div class="col-md-3">
+                        <strong>Time:</strong>
+                    </div>
+                    <div class="col-md-9">
+                        {{ booking.class_schedule.start_time|time:"g:i A" }} - {{ booking.class_schedule.end_time|time:"g:i A" }}
+                    </div>
+                </div>
+                
+                <div class="row mb-3">
+                    <div class="col-md-3">
+                        <strong>Location:</strong>
+                    </div>
+                    <div class="col-md-9">
+                        {{ booking.class_schedule.location }}
+                    </div>
+                </div>
+                
+                <div class="row mb-3">
+                    <div class="col-md-3">
+                        <strong>Booking Date:</strong>
+                    </div>
+                    <div class="col-md-9">
+                        {{ booking.booking_date|date:"M d, Y g:i A" }}
+                    </div>
+                </div>
+                
+                {% if booking.status == 'attended' and booking.feedback %}
+                <h5 class="mt-4">Your Feedback</h5>
+                <hr>
+                
+                <div class="row mb-3">
+                    <div class="col-md-3">
+                        <strong>Rating:</strong>
+                    </div>
+                    <div class="col-md-9">
+                        {{ booking.rating }}/5
+                    </div>
+                </div>
+                
+                <div class="row mb-3">
+                    <div class="col-md-3">
+                        <strong>Feedback:</strong>
+                    </div>
+                    <div class="col-md-9">
+                        {{ booking.feedback|linebreaks }}
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+            <div class="card-footer">
+                {% if booking.status == 'confirmed' and booking.class_schedule.start_time > now %}
+                <a href="{% url 'cancel_booking' booking.id %}" class="btn btn-danger">Cancel Booking</a>
+                {% endif %}
+                
+                {% if booking.status == 'attended' and not booking.feedback %}
+                <a href="{% url 'submit_feedback' booking.id %}" class="btn btn-primary">Leave Feedback</a>
+                {% endif %}
+                
+                <a href="{% url 'class_detail' booking.class_schedule.fitness_class.id %}" class="btn btn-outline-primary">View Class Details</a>
+                <a href="{% url 'booking_list' %}" class="btn btn-outline-secondary">Back to Bookings</a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

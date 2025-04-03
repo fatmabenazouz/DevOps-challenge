@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Class Reminder</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            margin: 0;
+            padding: 0;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .header {
+            background-color: #28a745;
+            color: white;
+            padding: 20px;
+            text-align: center;
+        }
+        .content {
+            padding: 20px;
+            background-color: #f9f9f9;
+        }
+        .footer {
+            padding: 20px;
+            text-align: center;
+            font-size: 0.8em;
+            color: #666;
+        }
+        .class-details {
+            background-color: #ffffff;
+            border: 1px solid #ddd;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 5px;
+        }
+        .button {
+            display: inline-block;
+            padding: 10px 20px;
+            background-color: #007bff;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            margin: 10px 0;
+        }
+        .reminder {
+            background-color: #fffacd;
+            border-left: 4px solid #ffd700;
+            padding: 10px 15px;
+            margin: 15px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Class Reminder</h1>
+        </div>
+        <div class="content">
+            <p>Hi {{ user.first_name|default:user.username }},</p>
+            
+            <p>This is a friendly reminder that you have a fitness class scheduled for tomorrow:</p>
+            
+            <div class="class-details">
+                <h2>{{ fitness_class.title }}</h2>
+                <p><strong>Date:</strong> {{ class_schedule.start_time|date:"l, F d, Y" }}</p>
+                <p><strong>Time:</strong> {{ class_schedule.start_time|time:"g:i A" }} - {{ class_schedule.end_time|time:"g:i A" }}</p>
+                <p><strong>Location:</strong> {{ class_schedule.location }}</p>
+                <p><strong>Instructor:</strong> {{ fitness_class.instructor.name }}</p>
+            </div>
+            
+            <div class="reminder">
+                <h3>Reminders:</h3>
+                <ul>
+                    <li>Please arrive at least 10 minutes before the class starts</li>
+                    <li>Bring appropriate workout clothes and footwear</li>
+                    <li>Bring a water bottle and a small towel</li>
+                    {% if fitness_class.equipment_required %}
+                    <li>Equipment needed: {{ fitness_class.equipment_required }}</li>
+                    {% endif %}
+                </ul>
+            </div>
+            
+            <p>If you need to cancel your booking, please do so at least 24 hours in advance.</p>
+            
+            <p>We look forward to seeing you in class!</p>
+            
+            <a href="{{ site_url }}{% url 'booking_detail' booking.id %}" class="button">View Booking Details</a>
+        </div>
+        <div class="footer">
+            <p>&copy; {% now "Y" %} FitBook. All rights reserved.</p>
+            <p>123 Fitness Street, Exercise City, EC 12345</p>
+        </div>
+    </div>
+</body>
+</html>

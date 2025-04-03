@@ -1,0 +1,114 @@
+---
+- name: Deploy Fitness Booking Application
+  hosts: production
+  become: true
+  vars:
+    app_name: fitness-booking
+    docker_hub_username: "{{ lookup('env', 'DOCKER_HUB_USERNAME') }}"
+    docker_hub_token: "{{ lookup('env', 'DOCKER_HUB_TOKEN') }}"
+    app_port: "{{ lookup('env', 'APP_PORT') | default('8000', true) }}"
+    nginx_http_port: "{{ lookup('env', 'NGINX_HTTP_PORT') | default('80', true) }}"
+    nginx_https_port: "{{ lookup('env', 'NGINX_HTTPS_PORT') | default('443', true) }}"
+    db_password: "{{ lookup('env', 'DB_PASSWORD') | default('postgres', true) }}"
+    secret_key: "{{ lookup('env', 'SECRET_KEY') }}"
+    sendgrid_api_key: "{{ lookup('env', 'SENDGRID_API_KEY') }}"
+    app_directory: "/opt/{{ app_name }}"
+    
+  tasks:
+    - name: Create application directory
+      file:
+        path: "{{ app_directory }}"
+        state: directory
+        mode: '0755'
+        
+    - name: Install required system packages
+      apt:
+        pkg:
+          - apt-transport-https
+          - ca-certificates
+          - curl
+          - software-properties-common
+          - python3-pip
+          - python3-setuptools
+          - docker.io
+          - docker-compose
+        state: present
+        update_cache: true
+        
+    - name: Ensure Docker service is running
+      systemd:
+        name: docker
+        state: started
+        enabled: true
+        
+    - name: Install Docker Python library
+      pip:
+        name: docker
+        state: present
+        
+    - name: Log in to Docker Hub
+      community.docker.docker_login:
+        username: "{{ docker_hub_username }}"
+        password: "{{ docker_hub_token }}"
+        
+    - name: Copy docker-compose.yml file
+      template:
+        src: docker-compose.yml.j2
+        dest: "{{ app_directory }}/docker-compose.yml"
+        mode: '0644'
+        
+    - name: Copy environment file
+      template:
+        src: .env.j2
+        dest: "{{ app_directory }}/.env"
+        mode: '0600'
+        
+    - name: Create docker volumes
+      community.docker.docker_volume:
+        name: "{{ item }}"
+      loop:
+        - "{{ app_name }}_postgres_data"
+        - "{{ app_name }}_static_volume"
+        - "{{ app_name }}_media_volume"
+        - "{{ app_name }}_certbot_data"
+        - "{{ app_name }}_ssl_certs"
+        
+    - name: Pull latest Docker images
+      community.docker.docker_image:
+        name: "{{ docker_hub_username }}/{{ item }}"
+        source: pull
+        tag: latest
+      loop:
+        - "fitness-booking-app"
+        - "fitness-booking-db"
+        - "fitness-booking-nginx"
+        
+    - name: Run docker-compose
+      community.docker.docker_compose:
+        project_src: "{{ app_directory }}"
+        state: present
+        pull: yes
+        
+    - name: Wait for application to be up
+      uri:
+        url: "http://localhost:{{ nginx_http_port }}"
+        status_code: 200
+      register: result
+      until: result.status == 200
+      retries: 10
+      delay: 5
+      ignore_errors: yes
+      
+    - name: Run database migrations
+      community.docker.docker_container_exec:
+        container: "{{ app_name }}-web-1"
+        command: python manage.py migrate
+        
+    - name: Collect static files
+      community.docker.docker_container_exec:
+        container: "{{ app_name }}-web-1"
+        command: python manage.py collectstatic --noinput
+        
+    - name: Verify deployment
+      debug:
+        msg: "Application successfully deployed to {{ inventory_hostname }} at port {{ nginx_http_port }}"

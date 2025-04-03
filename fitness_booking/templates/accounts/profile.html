@@ -1,0 +1,105 @@
+{% extends 'base.html' %}
+
+{% block title %}My Profile - {{ block.super }}{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-8 offset-md-2">
+        <div class="card">
+            <div class="card-header bg-primary text-white">
+                <h4 class="mb-0">My Profile</h4>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-3 text-center">
+                        <img src="https://via.placeholder.com/150" alt="Profile Image" class="img-fluid rounded-circle mb-3">
+                        <p><strong>{{ user.username }}</strong></p>
+                        <p>Member since {{ user.date_joined|date:"M d, Y" }}</p>
+                    </div>
+                    <div class="col-md-9">
+                        <h5>Account Information</h5>
+                        <hr>
+                        <div class="row mb-3">
+                            <div class="col-md-4">
+                                <strong>First Name:</strong>
+                            </div>
+                            <div class="col-md-8">
+                                {{ user.first_name|default:"Not provided" }}
+                            </div>
+                        </div>
+                        <div class="row mb-3">
+                            <div class="col-md-4">
+                                <strong>Last Name:</strong>
+                            </div>
+                            <div class="col-md-8">
+                                {{ user.last_name|default:"Not provided" }}
+                            </div>
+                        </div>
+                        <div class="row mb-3">
+                            <div class="col-md-4">
+                                <strong>Email:</strong>
+                            </div>
+                            <div class="col-md-8">
+                                {{ user.email|default:"Not provided" }}
+                            </div>
+                        </div>
+                        
+                        <h5 class="mt-4">Personal Information</h5>
+                        <hr>
+                        <div class="row mb-3">
+                            <div class="col-md-4">
+                                <strong>Phone Number:</strong>
+                            </div>
+                            <div class="col-md-8">
+                                {{ profile.phone_number|default:"Not provided" }}
+                            </div>
+                        </div>
+                        <div class="row mb-3">
+                            <div class="col-md-4">
+                                <strong>Birth Date:</strong>
+                            </div>
+                            <div class="col-md-8">
+                                {{ profile.birth_date|date:"M d, Y"|default:"Not provided" }}
+                            </div>
+                        </div>
+                        
+                        <h5 class="mt-4">Emergency Contact</h5>
+                        <hr>
+                        <div class="row mb-3">
+                            <div class="col-md-4">
+                                <strong>Name:</strong>
+                            </div>
+                            <div class="col-md-8">
+                                {{ profile.emergency_contact_name|default:"Not provided" }}
+                            </div>
+                        </div>
+                        <div class="row mb-3">
+                            <div class="col-md-4">
+                                <strong>Phone:</strong>
+                            </div>
+                            <div class="col-md-8">
+                                {{ profile.emergency_contact_phone|default:"Not provided" }}
+                            </div>
+                        </div>
+                        
+                        <h5 class="mt-4">Medical Information</h5>
+                        <hr>
+                        <div class="row">
+                            <div class="col-md-4">
+                                <strong>Medical Conditions:</strong>
+                            </div>
+                            <div class="col-md-8">
+                                {{ profile.medical_conditions|default:"None provided"|linebreaks }}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="card-footer">
+                <a href="{% url 'edit_profile' %}" class="btn btn-primary">Edit Profile</a>
+                <a href="{% url 'dashboard' %}" class="btn btn-secondary">Back to Dashboard</a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

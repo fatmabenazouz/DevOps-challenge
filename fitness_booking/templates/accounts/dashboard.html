@@ -1,0 +1,122 @@
+{% extends 'base.html' %}
+
+{% block title %}Dashboard - {{ block.super }}{% endblock %}
+
+{% block content %}
+<h2>Your Dashboard</h2>
+<p>Welcome back, {{ user.first_name|default:user.username }}!</p>
+
+<div class="row mt-4">
+    <div class="col-md-4">
+        <div class="card mb-4">
+            <div class="card-header bg-primary text-white">
+                <h5 class="mb-0">Quick Links</h5>
+            </div>
+            <div class="card-body">
+                <ul class="list-group list-group-flush">
+                    <li class="list-group-item">
+                        <a href="{% url 'profile' %}" class="text-decoration-none">
+                            <i class="fas fa-user me-2"></i> View Profile
+                        </a>
+                    </li>
+                    <li class="list-group-item">
+                        <a href="{% url 'booking_list' %}" class="text-decoration-none">
+                            <i class="fas fa-calendar-alt me-2"></i> My Bookings
+                        </a>
+                    </li>
+                    <li class="list-group-item">
+                        <a href="{% url 'class_list' %}" class="text-decoration-none">
+                            <i class="fas fa-dumbbell me-2"></i> Browse Classes
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-8">
+        <div class="card mb-4">
+            <div class="card-header bg-success text-white">
+                <h5 class="mb-0">Upcoming Bookings</h5>
+            </div>
+            <div class="card-body">
+                {% if upcoming_bookings %}
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Class</th>
+                                <th>Date</th>
+                                <th>Time</th>
+                                <th>Location</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for booking in upcoming_bookings %}
+                            <tr>
+                                <td>{{ booking.class_schedule.fitness_class.title }}</td>
+                                <td>{{ booking.class_schedule.start_time|date:"M d, Y" }}</td>
+                                <td>{{ booking.class_schedule.start_time|time:"g:i A" }}</td>
+                                <td>{{ booking.class_schedule.location }}</td>
+                                <td>
+                                    <a href="{% url 'booking_detail' booking.id %}" class="btn btn-sm btn-outline-primary">View</a>
+                                    <a href="{% url 'cancel_booking' booking.id %}" class="btn btn-sm btn-outline-danger">Cancel</a>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <p>You don't have any upcoming bookings.</p>
+                <a href="{% url 'class_list' %}" class="btn btn-primary">Browse Classes</a>
+                {% endif %}
+            </div>
+        </div>
+        
+        <div class="card">
+            <div class="card-header bg-info text-white">
+                <h5 class="mb-0">Past Bookings</h5>
+            </div>
+            <div class="card-body">
+                {% if past_bookings %}
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Class</th>
+                                <th>Date</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for booking in past_bookings %}
+                            <tr>
+                                <td>{{ booking.class_schedule.fitness_class.title }}</td>
+                                <td>{{ booking.class_schedule.start_time|date:"M d, Y g:i A" }}</td>
+                                <td>
+                                    <span class="badge bg-{% if booking.status == 'attended' %}success{% elif booking.status == 'cancelled' %}danger{% elif booking.status == 'no_show' %}warning{% else %}primary{% endif %}">
+                                        {{ booking.get_status_display }}
+                                    </span>
+                                </td>
+                                <td>
+                                    <a href="{% url 'booking_detail' booking.id %}" class="btn btn-sm btn-outline-primary">View</a>
+                                    {% if booking.status == 'attended' and not booking.feedback %}
+                                    <a href="{% url 'submit_feedback' booking.id %}" class="btn btn-sm btn-outline-success">Leave Feedback</a>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <p>You don't have any past bookings.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

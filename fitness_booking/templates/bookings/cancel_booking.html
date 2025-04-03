@@ -1,0 +1,35 @@
+{% extends 'base.html' %}
+
+{% block title %}Cancel Booking - {{ block.super }}{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-6 offset-md-3">
+        <div class="card">
+            <div class="card-header bg-danger text-white">
+                <h4 class="mb-0">Cancel Booking</h4>
+            </div>
+            <div class="card-body">
+                <div class="alert alert-warning">
+                    <h5 class="alert-heading">Are you sure you want to cancel this booking?</h5>
+                    <p>Class: <strong>{{ booking.class_schedule.fitness_class.title }}</strong></p>
+                    <p>Date: <strong>{{ booking.class_schedule.start_time|date:"l, F d, Y" }}</strong></p>
+                    <p>Time: <strong>{{ booking.class_schedule.start_time|time:"g:i A" }} - {{ booking.class_schedule.end_time|time:"g:i A" }}</strong></p>
+                </div>
+                
+                <form method="post">
+                    {% csrf_token %}
+                    <div class="mb-3">
+                        <label for="reason" class="form-label">Reason for Cancellation (Optional)</label>
+                        <textarea class="form-control" id="reason" name="reason" rows="3"></textarea>
+                    </div>
+                    <div class="d-grid gap-2">
+                        <button type="submit" class="btn btn-danger">Confirm Cancellation</button>
+                        <a href="{% url 'booking_detail' booking.id %}" class="btn btn-outline-secondary">Go Back</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

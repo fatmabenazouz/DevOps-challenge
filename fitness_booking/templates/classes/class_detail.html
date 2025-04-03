@@ -1,0 +1,92 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ fitness_class.title }} - {{ block.super }}{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-8">
+        <div class="card mb-4">
+            {% if fitness_class.image %}
+            <img src="{{ fitness_class.image }}" class="card-img-top" alt="{{ fitness_class.title }}">
+            {% else %}
+            <img src="https://via.placeholder.com/800x400?text=Fitness+Class" class="card-img-top" alt="{{ fitness_class.title }}">
+            {% endif %}
+            <div class="card-body">
+                <h2 class="card-title">{{ fitness_class.title }}</h2>
+                <p class="text-muted">
+                    <span class="badge bg-primary">{{ fitness_class.category.name }}</span>
+                    <span class="badge bg-secondary">{{ fitness_class.get_difficulty_level_display }}</span>
+                    <span class="badge bg-info">{{ fitness_class.duration_minutes }} minutes</span>
+                </p>
+                
+                <h5 class="mt-4">Description</h5>
+                <p class="card-text">{{ fitness_class.description|linebreaks }}</p>
+                
+                {% if fitness_class.equipment_required %}
+                <h5 class="mt-4">Equipment Required</h5>
+                <p>{{ fitness_class.equipment_required|linebreaks }}</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-4">
+        <div class="card mb-4">
+            <div class="card-header bg-primary text-white">
+                <h5 class="mb-0">Instructor</h5>
+            </div>
+            <div class="card-body">
+                <h5>{{ fitness_class.instructor.name }}</h5>
+                {% if fitness_class.instructor.profile_image %}
+                <img src="{{ fitness_class.instructor.profile_image }}" class="img-fluid rounded-circle mb-3" style="max-width: 100px" alt="{{ fitness_class.instructor.name }}">
+                {% endif %}
+                <p>{{ fitness_class.instructor.bio|truncatewords:30 }}</p>
+                <a href="{% url 'instructor_detail' fitness_class.instructor.id %}" class="btn btn-sm btn-outline-primary">View Instructor Profile</a>
+            </div>
+        </div>
+        
+        <div class="card">
+            <div class="card-header bg-success text-white">
+                <h5 class="mb-0">Upcoming Schedule</h5>
+            </div>
+            <div class="card-body">
+                {% if upcoming_schedules %}
+                <div class="list-group">
+                    {% for schedule in upcoming_schedules %}
+                    <div class="list-group-item">
+                        <div class="d-flex w-100 justify-content-between">
+                            <h6 class="mb-1">{{ schedule.start_time|date:"l" }}</h6>
+                            <small>{{ schedule.available_spots }} spots left</small>
+                        </div>
+                        <p class="mb-1">
+                            {{ schedule.start_time|date:"M d, Y" }} | 
+                            {{ schedule.start_time|time:"g:i A" }} - {{ schedule.end_time|time:"g:i A" }}
+                        </p>
+                        <p class="mb-1"><small>{{ schedule.location }}</small></p>
+                        <div class="mt-2">
+                            {% if request.user.is_authenticated %}
+                                {% if schedule.is_full %}
+                                <button class="btn btn-sm btn-secondary" disabled>Class Full</button>
+                                {% else %}
+                                <a href="{% url 'create_booking' schedule.id %}" class="btn btn-sm btn-success">Book Now</a>
+                                {% endif %}
+                            {% else %}
+                            <a href="{% url 'login' %}?next={% url 'schedule_detail' schedule.id %}" class="btn btn-sm btn-primary">Log in to Book</a>
+                            {% endif %}
+                            <a href="{% url 'schedule_detail' schedule.id %}" class="btn btn-sm btn-outline-primary">Details</a>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <p>No upcoming schedules for this class.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="mt-4">
+    <a href="{% url 'class_list' %}" class="btn btn-secondary">Back to Class List</a>
+</div>
+{% endblock %}

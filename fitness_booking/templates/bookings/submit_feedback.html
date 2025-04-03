@@ -1,0 +1,52 @@
+{% extends 'base.html' %}
+
+{% block title %}Submit Feedback - {{ block.super }}{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-6 offset-md-3">
+        <div class="card">
+            <div class="card-header bg-primary text-white">
+                <h4 class="mb-0">Submit Feedback</h4>
+            </div>
+            <div class="card-body">
+                <div class="mb-4">
+                    <h5>{{ booking.class_schedule.fitness_class.title }}</h5>
+                    <p>Instructor: {{ booking.class_schedule.fitness_class.instructor.name }}</p>
+                    <p>Date: {{ booking.class_schedule.start_time|date:"l, F d, Y" }}</p>
+                    <p>Time: {{ booking.class_schedule.start_time|time:"g:i A" }} - {{ booking.class_schedule.end_time|time:"g:i A" }}</p>
+                </div>
+                
+                <form method="post">
+                    {% csrf_token %}
+                    
+                    <div class="mb-3">
+                        <label for="{{ form.rating.id_for_label }}" class="form-label">Rating (1-5)</label>
+                        {{ form.rating }}
+                        {% if form.rating.errors %}
+                        <div class="text-danger">
+                            {{ form.rating.errors }}
+                        </div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="{{ form.feedback.id_for_label }}" class="form-label">Feedback</label>
+                        {{ form.feedback }}
+                        {% if form.feedback.errors %}
+                        <div class="text-danger">
+                            {{ form.feedback.errors }}
+                        </div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="d-grid gap-2">
+                        <button type="submit" class="btn btn-primary">Submit Feedback</button>
+                        <a href="{% url 'booking_detail' booking.id %}" class="btn btn-outline-secondary">Cancel</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

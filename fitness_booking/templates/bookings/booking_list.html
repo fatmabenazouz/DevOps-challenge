@@ -1,0 +1,123 @@
+{% extends 'base.html' %}
+
+{% block title %}My Bookings - {{ block.super }}{% endblock %}
+
+{% block content %}
+<h2>My Bookings</h2>
+
+<ul class="nav nav-tabs mb-4" id="bookingTabs" role="tablist">
+    <li class="nav-item" role="presentation">
+        <button class="nav-link active" id="upcoming-tab" data-bs-toggle="tab" data-bs-target="#upcoming" type="button" role="tab" aria-controls="upcoming" aria-selected="true">Upcoming</button>
+    </li>
+    <li class="nav-item" role="presentation">
+        <button class="nav-link" id="past-tab" data-bs-toggle="tab" data-bs-target="#past" type="button" role="tab" aria-controls="past" aria-selected="false">Past</button>
+    </li>
+</ul>
+
+<div class="tab-content" id="bookingTabsContent">
+    <div class="tab-pane fade show active" id="upcoming" role="tabpanel" aria-labelledby="upcoming-tab">
+        {% if upcoming_bookings %}
+        <div class="card">
+            <div class="card-header bg-primary text-white">
+                <h5 class="mb-0">Upcoming Bookings</h5>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Class</th>
+                                <th>Date</th>
+                                <th>Time</th>
+                                <th>Location</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for booking in upcoming_bookings %}
+                            <tr>
+                                <td>{{ booking.class_schedule.fitness_class.title }}</td>
+                                <td>{{ booking.class_schedule.start_time|date:"M d, Y" }}</td>
+                                <td>{{ booking.class_schedule.start_time|time:"g:i A" }}</td>
+                                <td>{{ booking.class_schedule.location }}</td>
+                                <td>
+                                    <span class="badge {% if booking.status == 'confirmed' %}bg-success{% else %}bg-secondary{% endif %}">
+                                        {{ booking.get_status_display }}
+                                    </span>
+                                </td>
+                                <td>
+                                    <a href="{% url 'booking_detail' booking.id %}" class="btn btn-sm btn-outline-primary">View</a>
+                                    {% if booking.status == 'confirmed' %}
+                                    <a href="{% url 'cancel_booking' booking.id %}" class="btn btn-sm btn-outline-danger">Cancel</a>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        {% else %}
+        <div class="alert alert-info">
+            <h5 class="alert-heading">No Upcoming Bookings</h5>
+            <p>You don't have any upcoming class bookings.</p>
+            <hr>
+            <p class="mb-0">
+                <a href="{% url 'class_list' %}" class="btn btn-primary">Browse Classes</a>
+            </p>
+        </div>
+        {% endif %}
+    </div>
+    
+    <div class="tab-pane fade" id="past" role="tabpanel" aria-labelledby="past-tab">
+        {% if past_bookings %}
+        <div class="card">
+            <div class="card-header bg-secondary text-white">
+                <h5 class="mb-0">Past Bookings</h5>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Class</th>
+                                <th>Date</th>
+                                <th>Time</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for booking in past_bookings %}
+                            <tr>
+                                <td>{{ booking.class_schedule.fitness_class.title }}</td>
+                                <td>{{ booking.class_schedule.start_time|date:"M d, Y" }}</td>
+                                <td>{{ booking.class_schedule.start_time|time:"g:i A" }}</td>
+                                <td>
+                                    <span class="badge {% if booking.status == 'attended' %}bg-success{% elif booking.status == 'cancelled' %}bg-danger{% elif booking.status == 'no_show' %}bg-warning{% else %}bg-secondary{% endif %}">
+                                        {{ booking.get_status_display }}
+                                    </span>
+                                </td>
+                                <td>
+                                    <a href="{% url 'booking_detail' booking.id %}" class="btn btn-sm btn-outline-primary">View</a>
+                                    {% if booking.status == 'attended' and not booking.feedback %}
+                                    <a href="{% url 'submit_feedback' booking.id %}" class="btn btn-sm btn-outline-success">Leave Feedback</a>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        {% else %}
+        <div class="alert alert-info">
+            <p>You don't have any past bookings.</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

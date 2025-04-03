@@ -1,0 +1,93 @@
+version: '3.8'
+
+services:
+  # PostgreSQL Service
+  db:
+    image: {{ docker_hub_username }}/fitness-booking-db:latest
+    restart: always
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_DB=postgres
+      - POSTGRES_USER=${DB_USER:-postgres}
+      - POSTGRES_PASSWORD=${DB_PASSWORD}
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - fitness_network
+
+  # Django Web Application
+  web:
+    image: {{ docker_hub_username }}/fitness-booking-app:latest
+    restart: always
+    volumes:
+      - static_volume:/app/staticfiles
+      - media_volume:/app/media
+    environment:
+      - DEBUG=${DEBUG:-False}
+      - SECRET_KEY=${SECRET_KEY}
+      - DB_NAME=${DB_NAME:-fitness_booking}
+      - DB_USER=${DB_USER:-postgres}
+      - DB_PASSWORD=${DB_PASSWORD}
+      - DB_HOST=db
+      - DB_PORT=${DB_PORT:-5432}
+      - SENDGRID_API_KEY=${SENDGRID_API_KEY}
+      - DEFAULT_FROM_EMAIL=${DEFAULT_FROM_EMAIL:-noreply@fitnessclasses.com}
+      - ALLOWED_HOSTS=${ALLOWED_HOSTS:-localhost,127.0.0.1}
+    depends_on:
+      - db
+    networks:
+      - fitness_network
+
+  # Nginx Service
+  nginx:
+    image: {{ docker_hub_username }}/fitness-booking-nginx:latest
+    restart: always
+    volumes:
+      - static_volume:/app/staticfiles
+      - media_volume:/app/media
+      - certbot_data:/var/www/certbot
+      - ssl_certs:/etc/nginx/ssl
+    ports:
+      - "{{ nginx_http_port }}:80"
+      - "{{ nginx_https_port }}:443"
+    depends_on:
+      - web
+    networks:
+      - fitness_network
+
+  # Certbot for SSL certificates
+  certbot:
+    image: certbot/certbot
+    volumes:
+      - certbot_data:/var/www/certbot
+      - ssl_certs:/etc/letsencrypt
+    depends_on:
+      - nginx
+    command: renew
+    networks:
+      - fitness_network
+
+networks:
+  fitness_network:
+    driver: bridge
+
+volumes:
+  postgres_data:
+    external: true
+    name: {{ app_name }}_postgres_data
+  static_volume:
+    external: true
+    name: {{ app_name }}_static_volume
+  media_volume:
+    external: true
+    name: {{ app_name }}_media_volume
+  certbot_data:
+    external: true
+    name: {{ app_name }}_certbot_data
+  ssl_certs:
+    external: true
+    name: {{ app_name }}_ssl_certs

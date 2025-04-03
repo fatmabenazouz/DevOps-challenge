@@ -1,0 +1,94 @@
+{% extends 'base.html' %}
+
+{% block title %}Classes - {{ block.super }}{% endblock %}
+
+{% block content %}
+<h2>Fitness Classes</h2>
+
+<div class="row mt-4">
+    <div class="col-md-3">
+        <div class="card mb-4">
+            <div class="card-header bg-primary text-white">
+                <h5 class="mb-0">Categories</h5>
+            </div>
+            <div class="card-body">
+                <div class="list-group">
+                    <a href="{% url 'class_list' %}" class="list-group-item list-group-item-action {% if not request.GET.category %}active{% endif %}">
+                        All Categories
+                    </a>
+                    {% for category in categories %}
+                    <a href="{% url 'class_list_by_category' category.id %}" class="list-group-item list-group-item-action {% if request.GET.category == category.id|stringformat:'i' %}active{% endif %}">
+                        {{ category.name }}
+                    </a>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+        
+        <div class="card">
+            <div class="card-header bg-info text-white">
+                <h5 class="mb-0">Upcoming Classes</h5>
+            </div>
+            <div class="card-body">
+                <div class="list-group">
+                    {% for schedule in upcoming_schedules %}
+                    <a href="{% url 'schedule_detail' schedule.id %}" class="list-group-item list-group-item-action">
+                        <div class="d-flex w-100 justify-content-between">
+                            <h6 class="mb-1">{{ schedule.fitness_class.title }}</h6>
+                            <small>{{ schedule.start_time|time:"g:i A" }}</small>
+                        </div>
+                        <p class="mb-1">{{ schedule.start_time|date:"M d, Y" }}</p>
+                        <small>{{ schedule.location }}</small>
+                    </a>
+                    {% empty %}
+                    <div class="list-group-item">
+                        <p class="mb-0">No upcoming classes</p>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-9">
+        <div class="row">
+            {% for class in classes %}
+            <div class="col-md-4">
+                <div class="card mb-4">
+                    {% if class.image %}
+                    <img src="{{ class.image }}" class="card-img-top" alt="{{ class.title }}">
+                    {% else %}
+                    <img src="https://via.placeholder.com/300x200?text=Fitness+Class" class="card-img-top" alt="{{ class.title }}">
+                    {% endif %}
+                    <div class="card-body">
+                        <h5 class="card-title">{{ class.title }}</h5>
+                        <p class="card-text text-muted">
+                            <small>
+                                <span class="badge bg-primary">{{ class.category.name }}</span>
+                                <span class="badge bg-secondary">{{ class.get_difficulty_level_display }}</span>
+                            </small>
+                        </p>
+                        <p class="card-text">{{ class.description|truncatewords:15 }}</p>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div class="text-muted">
+                                <small>{{ class.duration_minutes }} mins</small>
+                            </div>
+                            <a href="{% url 'class_detail' class.id %}" class="btn btn-sm btn-primary">View Details</a>
+                        </div>
+                    </div>
+                    <div class="card-footer">
+                        <small class="text-muted">Instructor: {{ class.instructor.name }}</small>
+                    </div>
+                </div>
+            </div>
+            {% empty %}
+            <div class="col-12">
+                <div class="alert alert-info">
+                    No classes found in this category.
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endblock %}

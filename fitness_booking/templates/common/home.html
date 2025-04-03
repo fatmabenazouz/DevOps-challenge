@@ -1,0 +1,49 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="jumbotron bg-light p-5 mb-4 rounded">
+    <h1 class="display-4">Welcome to FitBook</h1>
+    <p class="lead">Your all-in-one platform for booking fitness classes.</p>
+    <hr class="my-4">
+    <p>Browse through our variety of classes, book your spot, and start your fitness journey today!</p>
+    <a class="btn btn-primary btn-lg" href="{% url 'class_list' %}">View Classes</a>
+</div>
+
+<div class="row mt-5">
+    <div class="col-md-4">
+        <div class="card mb-4">
+            <div class="card-body text-center">
+                <h3 class="card-title"><i class="fas fa-search mb-3 d-block"></i>Browse Classes</h3>
+                <p class="card-text">Explore our wide range of fitness classes including yoga, HIIT, pilates, and more.</p>
+                <a href="{% url 'class_list' %}" class="btn btn-outline-primary">Find a Class</a>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card mb-4">
+            <div class="card-body text-center">
+                <h3 class="card-title"><i class="fas fa-calendar-check mb-3 d-block"></i>Book Sessions</h3>
+                <p class="card-text">Reserve your spot in your favorite classes with just a few clicks.</p>
+                {% if user.is_authenticated %}
+                <a href="{% url 'class_list' %}" class="btn btn-outline-primary">Book Now</a>
+                {% else %}
+                <a href="{% url 'login' %}" class="btn btn-outline-primary">Sign In to Book</a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card mb-4">
+            <div class="card-body text-center">
+                <h3 class="card-title"><i class="fas fa-user mb-3 d-block"></i>Track Progress</h3>
+                <p class="card-text">Keep track of your attended classes and manage your fitness schedule.</p>
+                {% if user.is_authenticated %}
+                <a href="{% url 'dashboard' %}" class="btn btn-outline-primary">View Dashboard</a>
+                {% else %}
+                <a href="{% url 'register' %}" class="btn btn-outline-primary">Register Now</a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
