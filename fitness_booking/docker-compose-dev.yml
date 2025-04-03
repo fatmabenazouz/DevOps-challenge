@@ -1,3 +1,21 @@
+version: '3.8'
+
+services:
+  db:
+    build:
+      context: ./docker/postgres
+    restart: always
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_DB=postgres
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+    ports:
+      - "5432:5432"
+    networks:
+      - fitness_network
+
   web:
     build:
       context: .
