@@ -23,14 +23,6 @@ A comprehensive Django application for fitness centers to manage class schedules
 - **Deployment**: Ansible
 - **Frontend**: Bootstrap 5, JavaScript
 
-## Project Structure
-
-The application is organized into three main Django apps:
-
-- **accounts**: User authentication and profile management
-- **classes**: Fitness class and instructor management
-- **bookings**: Booking system and notifications
-
 ## Setup and Installation
 
 ### Prerequisites
@@ -50,7 +42,7 @@ The application is organized into three main Django apps:
 2. Create a virtual environment:
    ```bash
    python3 -m venv venv
-   source venv/bin/activate  # On Windows: venv\Scripts\activate
+   source venv/bin/activate
    ```
 
 3. Install dependencies:
@@ -169,6 +161,6 @@ coverage report
 3. Submit feedback for attended classes
 
 
-## Developers
+## Developed by
 
 - Fatma Ben Azouz
