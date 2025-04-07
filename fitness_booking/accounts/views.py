@@ -4,6 +4,7 @@ from django.contrib import messages
 from django.contrib.auth.forms import UserCreationForm
 from .models import UserProfile
 from .forms import UserProfileForm, UserUpdateForm
+from django.utils import timezone
 
 def register(request):
     if request.method == 'POST':

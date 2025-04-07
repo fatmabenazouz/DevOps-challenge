@@ -38,7 +38,7 @@ handle_error() {
 start_dev() {
   echo "Starting development environment..."
   docker-compose -f docker-compose-dev.yml up -d || handle_error "Failed to start development environment"
-  echo "Development environment started. Access the application at: http://localhost:8000"
+  echo "Development environment started. Access the application at: http://localhost:8060"
   echo "PGAdmin is available at: http://localhost:5050"
   echo "MailHog is available at: http://localhost:8025"
 }
