@@ -4,7 +4,7 @@ all:
     production:
       hosts:
         server:
-          ansible_host: "{{ lookup('env', 'TARGET_SERVER') }}"
-          ansible_user: "{{ lookup('env', 'SSH_USER') }}"
-          ansible_ssh_private_key_file: "~/.ssh/id_rsa"
+          ansible_host: "146.190.158.14"
+          ansible_user: "ubuntu"
+          ansible_ssh_private_key_file: "~/.ssh/id_ed25519"
           ansible_python_interpreter: /usr/bin/python3
