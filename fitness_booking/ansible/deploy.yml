@@ -79,7 +79,7 @@
         source: pull
         tag: latest
       loop:
-        - "fitness-booking-app"
+        - "fitness-booking"
         - "fitness-booking-db"
         - "fitness-booking-nginx"
         

@@ -89,7 +89,7 @@ A comprehensive Django application for fitness centers to manage class schedules
    ```
 
 3. The application will be available at:
-   - Web application: http://localhost:8000
+   - Web application: http://localhost:8060
    - PGAdmin: http://localhost:5050
    - MailHog (for email testing): http://localhost:8025
    
